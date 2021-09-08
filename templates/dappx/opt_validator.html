@@ -1,0 +1,13 @@
+{% extends 'dappx/base.html' %}
+{% block body_block %}
+  <div class="container">
+    <div class="jumbotron">
+      <h1>OTP :</h1>
+          {# A more "HTML" way of creating the login form#}
+          <form method="post" action="{% url 'dappx:OTPAuthentication' %}">{% csrf_token %}
+          <label for="OTP1">OTP</label>
+          <input type="text" name="OTP" placeholder="enter OTP">
+          <input type="submit" name="OTPbtn" value="Submit">
+          </form></div>
+  </div>
+{% endblock %}
