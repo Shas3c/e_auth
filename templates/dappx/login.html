@@ -1,18 +1,39 @@
 {% extends 'dappx/base.html' %}
 {% block body_block %}
-  <div class="container">
-    <div class="jumbotron">
-      <h1>Login here :</h1><form method="post" action="{% url 'dappx:user_login' %}">
+  
+  <div class="form">
+    <div class="jumbotron"> 
+      <h2>Login here :</h2><form class="login.form" method="post" action="{% url 'dappx:user_login' %}">
           {% csrf_token %}
           {# A more "HTML" way of creating the login form#}
           <label for="username">Username:</label>
           <input type="text" name="username" placeholder="Username"><label for="password">Password:</label>
           <input type="password" name="password" placeholder="Password">
-          <input type="submit" name="loginbtn" value="Login with OTP"></form></div>
+          <input type="submit" name="loginbtn" value="Login with OTP">
+          <input type="submit" name="loginbtn2" value="Login with QR"></form></div>
+          
   </div>
   <div>
+    {% if messages %}
     {% for message in messages %}
-    <h3> {{message}} </h3>
+    <div class="alert alert-{{ message.tags }} alert-dismissible text-center" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
+      </button>
+      <strong>{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Error{% else %}{{ message.tags|title }}{% endif %}!
+      <h3></strong> {{ message }} </h3>
+    </div>
+    <!--<h3> {{message}} </h3> -->
     {% endfor %}
+    {% endif %}
   </div>
+<script>
+    document.getElementById('LoginForm').onkeypress = function(e)
+    {
+        var key = e.charCode || e.keyCode || 0;
+        if(key == 13)
+        {
+            e.preventDefault();
+        }
+    }
+</script>
 {% endblock %}

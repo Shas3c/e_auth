@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^dappx/',include('dappx.urls')),
     url(r'^logout/$', views.user_logout, name='logout'),
     path('dappx/opt_validator/',views.otp_validator,name='otp_validator'),
+    path('dappx/qr_code/',views.qr_code,name='qr_code')
 ]

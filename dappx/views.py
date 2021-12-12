@@ -10,7 +10,10 @@ from random import randint
 from django.core.mail import send_mail,EmailMessage
 from django.conf import settings
 from django.contrib import messages
+from django.views.decorators.cache import cache_control
+import qrcode
 
+location = "/Users/sahilsharma/Downloads/djangoy/"
 def index(request):
     return render(request,'dappx/index.html')
 
@@ -62,7 +65,7 @@ def user_login(request):
                 print(otp)
                 subject = "Login with OTP"
                 sender = settings.EMAIL_HOST_USER
-                message = "Hi,"+ str(user.first_name)+", this is your OTP for logging into our system : " + str(otp) + ". Please login within 5 minutes."
+                message = "Hi,"+ str(user1)+" this is your OTP for logging into our system : " + str(otp) 
                 val = send_mail(subject, message, sender, [user_email])
                 if val:
                     request.session['username']=username
@@ -72,15 +75,45 @@ def user_login(request):
                     
                 else:
                     return HttpResponse("Your account was inactive.")
+            elif 'loginbtn2' in request.POST:
+                otp2 = randint(100000, 999999)
+                qr = qrcode.QRCode(version=1,error_correction=qrcode.constants.ERROR_CORRECT_H,box_size=5,border=5)
+                qr.add_data(username + ' ' + password + ' ' + str(otp2))
+                qr.make(fit=True)
+                img = qr.make_image(fill_color='black', back_color='white')
+                img.save(location+'qrcode_'+str(user.username) +'.png')
+                print('QR Code generated!!')
+                
+                email_sender = settings.EMAIL_HOST_USER
+                subject = "Login with QR"
+                message = "Hi,"+ str(user1)+", the QR for logging into our system is attached. Please login within 5 minutes."
+                mail = EmailMessage(subject,message,email_sender,[user_email])
+                mail.attach_file(location+'qrcode_'+str(username)+'.png')
+                val = mail.send()
+                if val:
+                    print('Email was sent successfully')
+                    request.session['username']=username
+                    request.session['password']=password
+                    request.session['otp2']=otp2
+                    return HttpResponseRedirect(reverse(qr_code))
+                    #return render(request, 'dappx/qr_code.html')
+                else:
+                    print('Email was not sent successfully')
+                    #return redirect('../login')
         else:
-            print("Someone tried to login and failed.")
-            print("They used username: {} and password: {}".format(username,password))
-            return HttpResponse("Invalid login details given")
+            #print("Someone tried to login and failed.")
+            #print("They used username: {} and password: {}".format(username,password))
+            messages.error(request, 'Invalid Login.')
+            return render(request, 'dappx/login.html')
+            #return HttpResponse("Invalid login details given")
     else:
         return render(request, 'dappx/login.html', {})
 
 def otp_validator(request):
     return render(request,'dappx/opt_validator.html')
+
+def qr_code(request):
+    return render(request,'dappx/qrcode.html')
 
 def OTPAuthentication(request):
     if request.method == 'POST' and (request.session['username'] and request.session['password'] and request.session['otp']):
@@ -93,6 +126,29 @@ def OTPAuthentication(request):
             auth.login(request,user)
             return HttpResponseRedirect(reverse(index))
         else:
-            messages.info(request, 'Invalid OTP.')
+            messages.error(request, 'Invalid OTP.')
             return render(request, 'dappx/login.html')
+
+def QRAuthentication(request):
+    if request.method == 'POST' and (request.session['username'] and request.session['password'] and request.session['otp2']):
+        #Take the session variable
+        username = request.session['username']
+        password = request.session['password']
+        otp2 = request.session['otp2']
+        #Take the variables from QR Code reader template
+        credentials = request.POST['b']
+        temp = credentials.split(" ")
+        username2 = temp[0]
+        password2 = temp[1]
+        otp3 = temp[2]
+        if (str(username)== str(username2) and str(password) ==str(password2) and str(otp2)== str(otp3)):
+            user=auth.authenticate(request,username=username,password=password)
+            auth.login(request,user)
+            return HttpResponseRedirect(reverse(index))
+        else:
+           #print('Invalid credentials!!!')
+            messages.error(request,'Invalid QR.')   
+            return render(request,'dappx/login.html')
+    elif request.method == 'GET' and (request.session['username'] and request.session['password']):
+        return render(request,'dappx/qrcode.html')
        

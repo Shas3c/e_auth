@@ -1,0 +1,29 @@
+body
+{
+    background:url('https://wpamelia.com/wp-content/uploads/2019/02/astronomy-constellation-dark-998641.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.navbar{
+    justify-content: center;
+    background-color: black;
+}
+.navbar-expand-lg{
+    background-color: black;
+    box-shadow:4px 4px 5px #696969;
+    justify-content: center;
+    border-radius: 5px;
+    opacity: .8;
+    padding-left: 100px;
+    padding-right: 100px;
+}
+.nav-item{
+    padding: 0px 20px;
+}
+
+li a:hover {
+    background-color: black;
+    color: black !important;
+    border-radius: 5px;
+    opacity: .8;
+  }

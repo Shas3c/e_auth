@@ -11,4 +11,5 @@ urlpatterns=[
     url(r'^register/$',views.register,name='register'),
     path('user_login/',views.user_login,name='user_login'),
     path('OTPAuthentication/',views.OTPAuthentication,name='OTPAuthentication'),
+    path('QRAuthentication/',views.QRAuthentication,name='QRAuthentication')
 ]
